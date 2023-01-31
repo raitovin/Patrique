@@ -74,6 +74,16 @@ for i in range(len(color)):
             p_color = (color[i])
             
             break
+        #vert
+        if gilbert >= (40, 50, 20) and gilbert <= (80, 255, 255):
+            p_color = (color[i])
+            
+            break
+        #red
+        if gilbert >= (0, 50, 20) and gilbert <= (5, 255, 255):
+            p_color = (color[i])
+            
+            break
 
 
 hsv = cv2.cvtColor(img_, cv2.COLOR_BGR2HSV)
