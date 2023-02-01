@@ -5,12 +5,25 @@ import os
 import cv2
 import colorsys
 
-"""
-                            /!\ IMPORTANT /!\
-
-
-cette verion ne fonctionne qu'avec des RECTANGLES de couleurs ROUGE et NOIR
-"""
+def rgb_to_hsv(r, g, b):
+    r, g, b = r/255.0, g/255.0, b/255.0
+    mx = max(r, g, b)
+    mn = min(r, g, b)
+    df = mx-mn
+    if mx == mn:
+        h = 0
+    elif mx == r:
+        h = (60 * ((g-b)/df) + 360) % 360
+    elif mx == g:
+        h = (60 * ((b-r)/df) + 120) % 360
+    elif mx == b:
+        h = (60 * ((r-g)/df) + 240) % 360
+    if mx == 0:
+        s = 0
+    else:
+        s = (df/mx)*100
+    v = mx*100
+    return h, s, v
 
 #def replacer(w, h):
 
@@ -57,57 +70,50 @@ img_ = cv2.imread('temp.png')
 
 p_color = (0, 0, 0)
 
-blue = [(0, 0, 10), (0, 0, 255)]
-green = [(0, 10, 0), (0, 255, 0)]
-red = [(10, 0, 10), (255, 0, 0)]
+
+hsv = cv2.cvtColor(img_, cv2.COLOR_BGR2HSV)
+
+mask1 = cv2.inRange(hsv, (0, 50, 20), (370, 370, 370))
+mask2 = cv2.inRange(hsv, (175, 50, 50), (180, 255, 255))
+
+mask = cv2.bitwise_or(mask1, mask2)
 
 for i in range(len(color)):
     if color[i] != (0,0,0):
         r, g, b = color[i]
-        r, g, b = r/255, g/255, b/255
-        (h, s, v) = colorsys.rgb_to_hsv(r, g, b)
-        (h, s, v) = (int(h * 179), int(s * 255), int(v * 255))
-        gilbert = (h, s, v)
-        print((h, s, v))
+        
+        (h, s, v) = rgb_to_hsv(r, g, b)
+        gilbert = (int(h), int(s), int(v))
+        print(gilbert)
         #bleu
         if gilbert >= (100, 50, 20) and gilbert <= (140, 255, 255):
             p_color = (color[i])
-            
+            print('bleu')
+            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            break
+        elif gilbert >= (169, 20, 74) and gilbert <= (255, 255, 255):
+            p_color = (color[i])
+            print('bleu')
+            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
             break
         #vert
-        if gilbert >= (40, 50, 20) and gilbert <= (80, 255, 255):
+        if gilbert >= (40, 50, 20) and gilbert <= (136, 255, 255):
             p_color = (color[i])
-            
+            print('vert')
+            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
             break
         #red
-        if gilbert >= (0, 50, 20) and gilbert <= (5, 255, 255):
+        if gilbert >= (0, 50, 20) and gilbert <= (5, 255, 255) or gilbert >= (350, 50, 0):
             p_color = (color[i])
-            
+            print('rouge')
+            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
             break
 
 
-hsv = cv2.cvtColor(img_, cv2.COLOR_BGR2HSV)
-
-mask1_red = cv2.inRange(hsv, (0, 50, 20), (5, 255, 255))
-mask2_red = cv2.inRange(hsv, (175, 50, 50), (180, 255, 255))
-
-mask1_blue = cv2.inRange(hsv, (100, 50, 20), (140, 255, 255))
-mask2_blue = cv2.inRange(hsv, (175, 50, 50), (180, 255, 255))
-
-mask1_green = cv2.inRange(hsv, (40, 50, 50), (80, 255, 255))
-mask2_green = cv2.inRange(hsv, (175, 50, 50), (180, 255, 255))
-
-def mask(mask1, mask2):
-    
-    mask = cv2.bitwise_or(mask1, mask2)
-    return mask
-
-contours, _ = cv2.findContours(mask(mask1_blue, mask2_blue), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
 for contour in contours:
-     x, y, w, h = cv2.boundingRect(contour)
-
-     cv2.rectangle(img_, (x, y), (x+ w, y + h), p_color, -1)
+    x, y, w, h = cv2.boundingRect(contour)
+    print(p_color) 
+    cv2.rectangle(img_, (x, y), (x+ w, y + h), p_color, -1)
 
 
 #enregistre le résultat
