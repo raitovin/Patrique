@@ -78,42 +78,27 @@ mask2 = cv2.inRange(hsv, (175, 50, 50), (180, 255, 255))
 
 mask = cv2.bitwise_or(mask1, mask2)
 
+#pour avoir la couleur de la forme à reconstruire
 for i in range(len(color)):
     if color[i] != (0,0,0):
         r, g, b = color[i]
         
         (h, s, v) = rgb_to_hsv(r, g, b)
         gilbert = (int(h), int(s), int(v))
-        print(gilbert)
-        #bleu
-        if gilbert >= (100, 50, 20) and gilbert <= (140, 255, 255):
-            p_color = (color[i])
-            print('bleu')
-            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            break
-        elif gilbert >= (169, 20, 74) and gilbert <= (255, 255, 255):
-            p_color = (color[i])
-            print('bleu')
-            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            break
-        #vert
-        if gilbert >= (40, 50, 20) and gilbert <= (136, 255, 255):
-            p_color = (color[i])
-            print('vert')
-            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            break
-        #red
-        if gilbert >= (0, 50, 20) and gilbert <= (5, 255, 255) or gilbert >= (350, 50, 0):
-            p_color = (color[i])
-            print('rouge')
-            contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            break
+        if gilbert != (0, 0, 0):
+            p_color = (int(r), int(g), int(b))
 
+contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+
+cv2.imshow("uwu", mask)
+cv2.waitKey(0)
 
 for contour in contours:
     x, y, w, h = cv2.boundingRect(contour)
     print(p_color) 
     cv2.rectangle(img_, (x, y), (x+ w, y + h), p_color, -1)
+    
 
 
 #enregistre le résultat
